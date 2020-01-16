@@ -47,9 +47,9 @@ public class Server {
 	final static String ENTRYID = "5df05a44b579470006b2c5f6";
 	final static String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
 	
-	public static final String URL = "jdbc:mysql://106.14.187.170:3306/fuzhou?characterEncoding=utf-8";
-	public static final String USER = "root";
-	public static final String PASSWORD = "root";
+	public static final String URL = "";
+	public static final String USER = "";
+	public static final String PASSWORD = "";
 	
 	// 生成签名信息
 	private static String getSignature(String nonce, String payload, String secret, String timestamp) {
@@ -68,40 +68,40 @@ public class Server {
 	}
 
 	public static void main(String[] args) throws IOException {
-//		HttpServer server = HttpServer.create(new InetSocketAddress(3032), 0);
-//		server.createContext("/callbackA3_1", new HttpHandler() {
-//			@Override
-//			public void handle(HttpExchange httpExchange) throws IOException {
-//				String method = httpExchange.getRequestMethod();
-//				if (method.equalsIgnoreCase("post")) {
-//					String payload = IOUtils.toString(httpExchange.getRequestBody(), "utf-8");
-//					String jdy = httpExchange.getRequestHeaders().get("x-jdy-signature").get(0);
-//					URI uri = httpExchange.getRequestURI();
-//					Map<String, String> parameterMap = parseParameter(uri.getRawQuery());
-//					String nonce = parameterMap.get("nonce");
-//					String timestamp = parameterMap.get("timestamp");
-//					String signature = Server.getSignature(nonce, payload, SECRET, timestamp);
-//					OutputStream out = httpExchange.getResponseBody();
-//					if (!signature.equals(jdy)) {
-//						httpExchange.sendResponseHeaders(401, 0);
-//						out.write("fail".getBytes());
-//						out.close();
-//						return;
-//					}
-//					httpExchange.sendResponseHeaders(200, 0);
-//					out.write("success".getBytes());
-//					out.close();
-//					// 处理数据 - 入库出库等处理
-//					handleData(payload);
-//				}
-//			}
-//		});
-//
-//		server.setExecutor(Executors.newCachedThreadPool());
-//		server.start();
+		HttpServer server = HttpServer.create(new InetSocketAddress(3032), 0);
+		server.createContext("/callbackA3_1", new HttpHandler() {
+			@Override
+			public void handle(HttpExchange httpExchange) throws IOException {
+				String method = httpExchange.getRequestMethod();
+				if (method.equalsIgnoreCase("post")) {
+					String payload = IOUtils.toString(httpExchange.getRequestBody(), "utf-8");
+					String jdy = httpExchange.getRequestHeaders().get("x-jdy-signature").get(0);
+					URI uri = httpExchange.getRequestURI();
+					Map<String, String> parameterMap = parseParameter(uri.getRawQuery());
+					String nonce = parameterMap.get("nonce");
+					String timestamp = parameterMap.get("timestamp");
+					String signature = Server.getSignature(nonce, payload, SECRET, timestamp);
+					OutputStream out = httpExchange.getResponseBody();
+					if (!signature.equals(jdy)) {
+						httpExchange.sendResponseHeaders(401, 0);
+						out.write("fail".getBytes());
+						out.close();
+						return;
+					}
+					httpExchange.sendResponseHeaders(200, 0);
+					out.write("success".getBytes());
+					out.close();
+					// 处理数据 - 入库出库等处理
+					handleData(payload);
+				}
+			}
+		});
+
+		server.setExecutor(Executors.newCachedThreadPool());
+		server.start();
 		
 		
-		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
+		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，把历史数据添加到数据表中，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
 		try {
 			String A3_1_APPID = "5ca877ccf99f2279a9dd6d14";
 			String A3_1_ENTRYID = "5da13fe452d0340006420aaa";
