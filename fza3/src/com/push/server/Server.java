@@ -156,7 +156,7 @@ public class Server {
 				if (DATA_CREATE.equals(op)) {
 					addServer(data);
 				}
-				 if (DATA_UPDATE.equals(op) && data.getInteger("flowState")!=0) {
+				 if (DATA_UPDATE.equals(op)) {
 					addServer(data);
 				 }
 			}
