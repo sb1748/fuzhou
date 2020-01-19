@@ -47,9 +47,9 @@ public class Server {
 	final static String ENTRYID = "5df05a44b579470006b2c5f6";
 	final static String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
 	
-	public static final String URL = "";
-	public static final String USER = "";
-	public static final String PASSWORD = "";
+	public static final String URL = "jdbc:mysql://rdsvc08y55x4bq2uk5a4.mysql.rds.aliyuncs.com:3306/fzjdy?characterEncoding=utf-8";
+	public static final String USER = "fzjdy";
+	public static final String PASSWORD = "jdy_fz@2020";
 	
 	// 生成签名信息
 	private static String getSignature(String nonce, String payload, String secret, String timestamp) {
@@ -101,34 +101,34 @@ public class Server {
 		server.start();
 		
 		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，把历史数据添加到数据表中，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
-		try {
-			String A5_APPID = "5ca877ccf99f2279a9dd6d14";
-			String A5_ENTRYID = "5c3063a0d2c28325b086feca";
-			String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
-			JDYAPIUtils api = new JDYAPIUtils(A5_APPID, A5_ENTRYID, APIKEY);
-			List<Map<String, Object>> a5 = api.getAllFormData(null, null);
-			Connection conn=null;
-			conn = DriverManager.getConnection(URL, USER, PASSWORD);
-			conn.setAutoCommit(false);
-			//添加数据
-			String sql = "insert into a5(zj,sfsl,sjxsje,bdid) values(?,?,?,?)";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			for (int i = 0; i < a5.size(); i++) {
-				ArrayList<Map<String, Object>> lists = (ArrayList<Map<String, Object>>)a5.get(i).get("_widget_1546675107500");
-				for (int j = 0; j < lists.size(); j++) {
-					String zj=getString(lists.get(j).get("_widget_1546675107552"))+getString(lists.get(j).get("_widget_1558508157580"))+getString(lists.get(j).get("_widget_1551920908498")+getString(lists.get(j).get("_widget_1551920908576")));
-					pstmt.setString(1, zj.replace("𡋾", "别"));
-					pstmt.setInt(2, getInteger(lists.get(j).get("_widget_1546696406111")));
-					pstmt.setDouble(3, getDouble(lists.get(j).get("_widget_1560400721159")));
-					pstmt.setString(4, a5.get(i).get("_id").toString());
-					pstmt.addBatch();
-				}
-			}
-			pstmt.executeBatch();
-			conn.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			String A5_APPID = "5ca877ccf99f2279a9dd6d14";
+//			String A5_ENTRYID = "5c3063a0d2c28325b086feca";
+//			String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
+//			JDYAPIUtils api = new JDYAPIUtils(A5_APPID, A5_ENTRYID, APIKEY);
+//			List<Map<String, Object>> a5 = api.getAllFormData(null, null);
+//			Connection conn=null;
+//			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+//			conn.setAutoCommit(false);
+//			//添加数据
+//			String sql = "insert into a5(zj,sfsl,sjxsje,bdid) values(?,?,?,?)";
+//			PreparedStatement pstmt = conn.prepareStatement(sql);
+//			for (int i = 0; i < a5.size(); i++) {
+//				ArrayList<Map<String, Object>> lists = (ArrayList<Map<String, Object>>)a5.get(i).get("_widget_1546675107500");
+//				for (int j = 0; j < lists.size(); j++) {
+//					String zj=getString(lists.get(j).get("_widget_1546675107552"))+getString(lists.get(j).get("_widget_1558508157580"))+getString(lists.get(j).get("_widget_1551920908498")+getString(lists.get(j).get("_widget_1551920908576")));
+//					pstmt.setString(1, zj.replace("𡋾", "别"));
+//					pstmt.setInt(2, getInteger(lists.get(j).get("_widget_1546696406111")));
+//					pstmt.setDouble(3, getDouble(lists.get(j).get("_widget_1560400721159")));
+//					pstmt.setString(4, a5.get(i).get("_id").toString());
+//					pstmt.addBatch();
+//				}
+//			}
+//			pstmt.executeBatch();
+//			conn.commit();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class Server {
 			sql = "insert into a5(zj,sfsl,sjxsje,bdid) values(?,?,?,?)";
 			pstmt = conn.prepareStatement(sql);
 			for (int i = 0; i < lists.size(); i++) {
-				String zj=getString(((Map)lists.get(i)).get("_widget_1546675107552"))+getString(((Map)lists.get(i)).get("_widget_1558508157580"))+getString(((Map)lists.get(i)).get("_widget_1551920908498")+getString(((Map)lists.get(i)).get("_widget_1551920908576")));
+				String zj=getString(((Map)lists.get(i)).get("_widget_1546675107552"))+getString(((Map)lists.get(i)).get("_widget_1558508157580"))+"-"+getString(((Map)lists.get(i)).get("_widget_1560400726029"))+getString(((Map)lists.get(i)).get("_widget_1551920908498")+getString(((Map)lists.get(i)).get("_widget_1551920908576")));
 				pstmt.setString(1, zj.replace("𡋾", "别"));
 				pstmt.setInt(2, getInteger(((Map)lists.get(i)).get("_widget_1546696406111")));
 				pstmt.setDouble(3, getDouble(((Map)lists.get(i)).get("_widget_1560400721159")));
@@ -188,7 +188,7 @@ public class Server {
 			for (int i = 0; i < lists.size(); i++) {
 				String sql2 = "select * from a5 where zj=?";
 				pstmt = (PreparedStatement) conn.prepareStatement(sql2);
-				String zj=getString(((Map)lists.get(i)).get("_widget_1546675107552"))+getString(((Map)lists.get(i)).get("_widget_1558508157580"))+getString(((Map)lists.get(i)).get("_widget_1551920908498")+getString(((Map)lists.get(i)).get("_widget_1551920908576")));
+				String zj=getString(((Map)lists.get(i)).get("_widget_1546675107552"))+getString(((Map)lists.get(i)).get("_widget_1558508157580"))+"-"+getString(((Map)lists.get(i)).get("_widget_1560400726029"))+getString(((Map)lists.get(i)).get("_widget_1551920908498")+getString(((Map)lists.get(i)).get("_widget_1551920908576")));
 				pstmt.setString(1, zj.replace("𡋾", "别"));
 				rs = pstmt.executeQuery();
 				int sfsl=0;
