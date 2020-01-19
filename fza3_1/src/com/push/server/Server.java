@@ -101,7 +101,7 @@ public class Server {
 		server.start();
 		
 		
-		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，把历史数据添加到数据表中，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
+		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
 		try {
 			String A3_1_APPID = "5ca877ccf99f2279a9dd6d14";
 			String A3_1_ENTRYID = "5da13fe452d0340006420aaa";
@@ -355,6 +355,10 @@ public class Server {
 		Map<String, Object> m25 = new HashMap<String, Object>();
 		m25.put("value", ddzpbj/index);
 		rawData.put("_widget_1578466166449", m25);
+		//A3流程结束标记
+		Map<String, Object> m26 = new HashMap<String, Object>();
+		m26.put("value",0);
+		rawData.put("_widget_1579242428750", m26);
 		api.createData(rawData);
 	}
 	
@@ -460,6 +464,10 @@ public class Server {
 		Map<String, Object> m25 = new HashMap<String, Object>();
 		m25.put("value", ddzpbj/index);
 		rawData.put("_widget_1578466166449", m25);
+		//A3流程结束标记
+		Map<String, Object> m26 = new HashMap<String, Object>();
+		m26.put("value",a35.get(0).get("_widget_1579242428750"));
+		rawData.put("_widget_1579242428750", m26);
 		api.updateData(a35.get(0).get("_id").toString(), rawData);
 	}
 	

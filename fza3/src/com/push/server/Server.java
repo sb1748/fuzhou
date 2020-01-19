@@ -96,29 +96,15 @@ public class Server {
 				}
 			}
 		});
-
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
-		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，把历史数据添加到数据表中，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
+		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
 		try {
 			String A3_APPID = "5ca877ccf99f2279a9dd6d14";
 			String A3_ENTRYID = "5c25996f987f1e5fe9032e23";
 			String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
-			final List<Map<String, Object>> condList = new ArrayList<Map<String, Object>>();
-			Map<String, Object> m = new HashMap<String, Object>();
-			m.put("field", "flowState");
-			m.put("type", "text");
-			m.put("method", "eq");
-			m.put("value", 1);
-			condList.add(m);
-			Map<String, Object> filter = new HashMap<String, Object>() {
-				{
-					put("rel", "and");
-					put("cond", condList);
-				}
-			};
 			JDYAPIUtils api = new JDYAPIUtils(A3_APPID, A3_ENTRYID, APIKEY);
-			List<Map<String, Object>> a3 = api.getAllFormData(null, filter);
+			List<Map<String, Object>> a3 = api.getAllFormData(null, null);
 			Connection conn=null;
 			conn = DriverManager.getConnection(URL, USER, PASSWORD);
 			conn.setAutoCommit(false);
@@ -167,9 +153,9 @@ public class Server {
 				String op = (String) payloadJSON.get("op");
 				JSONObject data = (JSONObject) payloadJSON.get("data");
 				// 新数据提交
-//				if (DATA_CREATE.equals(op)) {
-//					addServer(data);
-//				}
+				if (DATA_CREATE.equals(op)) {
+					addServer(data);
+				}
 				 if (DATA_UPDATE.equals(op)) {
 					 addServer(data);
 				 }
@@ -180,84 +166,82 @@ public class Server {
 	
 	public static void addServer(JSONObject data) {
 		try {
-			if(data.getInteger("flowState")==1){ //流程结束才推送
-				Connection conn=null;
-				ResultSet rs=null;
-				List<Object> lists = JSONObject.parseArray(data.getString("_widget_1545988304733"));//获取当前单据下的商品明细
-				JDYAPIUtils api = new JDYAPIUtils(APPID, ENTRYID, APIKEY);
-				Class.forName("com.mysql.jdbc.Driver");
-				conn = DriverManager.getConnection(URL, USER, PASSWORD);
-				conn.setAutoCommit(false);
-				//无论是否有数据，先删除
-				String sql = "delete from a3 where bdid=?";
-				PreparedStatement pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, data.getString("_id"));
-				pstmt.executeUpdate();
-				conn.commit();
-				//添加数据
-				sql = "insert into a3(qxx,sgdh,cpbm,cpqm,xsbz,xsmc,zj,htsl,ftje,ddzpbj,bdid) values(?,?,?,?,?,?,?,?,?,?,?)";
-				pstmt = conn.prepareStatement(sql);
-				for (int i = 0; i < lists.size(); i++) {
-					String qxx=((Map)lists.get(i)).get("_widget_1558495976018")+"-"+((Map)lists.get(i)).get("_widget_1559206739451");
-					pstmt.setString(1, qxx.replace("𡋾", "别"));
-					pstmt.setString(2, ((Map)lists.get(i)).get("_widget_1551859128121").toString());
-					pstmt.setString(3, ((Map)lists.get(i)).get("_widget_1546527150734").toString());
-					pstmt.setString(4, ((Map)lists.get(i)).get("_widget_1546132677648").toString());
-					pstmt.setString(5, ((Map)lists.get(i)).get("_widget_1551671731631").toString());
-					pstmt.setString(6, ((Map)lists.get(i)).get("_widget_1558852228099").toString());
-					String zj=getString(((Map)lists.get(i)).get("_widget_1546132677648"))+((Map)lists.get(i)).get("_widget_1558495976018")+"-"+((Map)lists.get(i)).get("_widget_1559206739451")+getString(((Map)lists.get(i)).get("_widget_1551859128121"))+getString(((Map)lists.get(i)).get("_widget_1551671731631"));
-					pstmt.setString(7, zj.replace("𡋾", "别"));
-					pstmt.setInt(8, getInteger(((Map)lists.get(i)).get("_widget_1564381839489")));
-					pstmt.setDouble(9, getDouble(((Map)lists.get(i)).get("_widget_1558610752973")));
-					pstmt.setDouble(10, getDouble(((Map)lists.get(i)).get("_widget_1558423889365")));
-					pstmt.setString(11, data.getString("_id"));
-					pstmt.addBatch();
-				}
-				pstmt.executeBatch();
-				conn.commit();
-				
-				
-				List<Map<String, Object>> listMap=getListMap(lists);
-				removeDuplicate(listMap);//按照（主键）产品+全信息+门店+手工单号+销售备注去重
-				//循环添加数据到A35
-				for (int i = 0; i < listMap.size(); i++) {
-					String sql2 = "select * from a3 where zj=?";
-					pstmt = (PreparedStatement) conn.prepareStatement(sql2);
-					pstmt.setString(1, listMap.get(i).get("_widget_1576034485145").toString());
-					rs = pstmt.executeQuery();
-					int htsl=0;
-					double ftje=0.0;
-					double ddzpbj=0.0;
-					int index=0;
-					while (rs.next()) {
-						htsl += rs.getInt("htsl");
-						ftje +=rs.getDouble("ftje");
-						ddzpbj +=rs.getDouble("ddzpbj");
-						index++;
-					}
-					final List<Map<String, Object>> condList = new ArrayList<Map<String, Object>>();
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("field", "_widget_1576034485145");
-					map.put("type", "text");
-					map.put("method", "eq");
-					map.put("value", listMap.get(i).get("_widget_1576034485145").toString());
-					condList.add(map);
-					Map<String, Object> filter = new HashMap<String, Object>() {
-						{
-							put("rel", "and");
-							put("cond", condList);
-						}
-					};
-					List<Map<String, Object>> a35 = api.getAllFormData(null, filter);
-					if(a35.size()==0){
-						addMap(listMap.get(i),api,htsl,ftje,ddzpbj,index);
-					}else{
-						updateMap(listMap.get(i),api,a35,htsl,ftje,ddzpbj,index);
-					}
-					
-				}
-				close(rs, pstmt, conn);
+			Connection conn=null;
+			ResultSet rs=null;
+			List<Object> lists = JSONObject.parseArray(data.getString("_widget_1545988304733"));//获取当前单据下的商品明细
+			JDYAPIUtils api = new JDYAPIUtils(APPID, ENTRYID, APIKEY);
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+			conn.setAutoCommit(false);
+			//无论是否有数据，先删除
+			String sql = "delete from a3 where bdid=?";
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, data.getString("_id"));
+			pstmt.executeUpdate();
+			conn.commit();
+			//添加数据
+			sql = "insert into a3(qxx,sgdh,cpbm,cpqm,xsbz,xsmc,zj,htsl,ftje,ddzpbj,bdid) values(?,?,?,?,?,?,?,?,?,?,?)";
+			pstmt = conn.prepareStatement(sql);
+			for (int i = 0; i < lists.size(); i++) {
+				String qxx=((Map)lists.get(i)).get("_widget_1558495976018")+"-"+((Map)lists.get(i)).get("_widget_1559206739451");
+				pstmt.setString(1, qxx.replace("𡋾", "别"));
+				pstmt.setString(2, ((Map)lists.get(i)).get("_widget_1551859128121").toString());
+				pstmt.setString(3, ((Map)lists.get(i)).get("_widget_1546527150734").toString());
+				pstmt.setString(4, ((Map)lists.get(i)).get("_widget_1546132677648").toString());
+				pstmt.setString(5, ((Map)lists.get(i)).get("_widget_1551671731631").toString());
+				pstmt.setString(6, ((Map)lists.get(i)).get("_widget_1558852228099").toString());
+				String zj=getString(((Map)lists.get(i)).get("_widget_1546132677648"))+((Map)lists.get(i)).get("_widget_1558495976018")+"-"+((Map)lists.get(i)).get("_widget_1559206739451")+getString(((Map)lists.get(i)).get("_widget_1551859128121"))+getString(((Map)lists.get(i)).get("_widget_1551671731631"));
+				pstmt.setString(7, zj.replace("𡋾", "别"));
+				pstmt.setInt(8, getInteger(((Map)lists.get(i)).get("_widget_1564381839489")));
+				pstmt.setDouble(9, getDouble(((Map)lists.get(i)).get("_widget_1558610752973")));
+				pstmt.setDouble(10, getDouble(((Map)lists.get(i)).get("_widget_1558423889365")));
+				pstmt.setString(11, data.getString("_id"));
+				pstmt.addBatch();
 			}
+			pstmt.executeBatch();
+			conn.commit();
+			
+			
+			List<Map<String, Object>> listMap=getListMap(lists,data.getInteger("flowState"));
+			removeDuplicate(listMap);//按照（主键）产品+全信息+门店+手工单号+销售备注去重
+			//循环添加数据到A35
+			for (int i = 0; i < listMap.size(); i++) {
+				String sql2 = "select * from a3 where zj=?";
+				pstmt = (PreparedStatement) conn.prepareStatement(sql2);
+				pstmt.setString(1, listMap.get(i).get("_widget_1576034485145").toString());
+				rs = pstmt.executeQuery();
+				int htsl=0;
+				double ftje=0.0;
+				double ddzpbj=0.0;
+				int index=0;
+				while (rs.next()) {
+					htsl += rs.getInt("htsl");
+					ftje +=rs.getDouble("ftje");
+					ddzpbj +=rs.getDouble("ddzpbj");
+					index++;
+				}
+				final List<Map<String, Object>> condList = new ArrayList<Map<String, Object>>();
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("field", "_widget_1576034485145");
+				map.put("type", "text");
+				map.put("method", "eq");
+				map.put("value", listMap.get(i).get("_widget_1576034485145").toString());
+				condList.add(map);
+				Map<String, Object> filter = new HashMap<String, Object>() {
+					{
+						put("rel", "and");
+						put("cond", condList);
+					}
+				};
+				List<Map<String, Object>> a35 = api.getAllFormData(null, filter);
+				if(a35.size()==0){
+					addMap(listMap.get(i),api,htsl,ftje,ddzpbj,index);
+				}else{
+					updateMap(listMap.get(i),api,a35,htsl,ftje,ddzpbj,index);
+				}
+				
+			}
+			close(rs, pstmt, conn);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -352,7 +336,7 @@ public class Server {
 		rawData.put("_widget_1576034485467", m21);
 		//出库产品显示
 		Map<String, Object> m22 = new HashMap<String, Object>();
-		m22.put("value", 0);
+		m22.put("value", 1);
 		rawData.put("_widget_1576034485482", m22);
 		//采购产品显示
 		Map<String, Object> m23 = new HashMap<String, Object>();
@@ -366,6 +350,10 @@ public class Server {
 		Map<String, Object> m25 = new HashMap<String, Object>();
 		m25.put("value",0.0);
 		rawData.put("_widget_1578466166449", m25);
+		//A3流程结束标记
+		Map<String, Object> m26 = new HashMap<String, Object>();
+		m26.put("value",map.get("_widget_1579242428750"));
+		rawData.put("_widget_1579242428750", m26);
 		api.createData(rawData);
 	}
 	
@@ -457,7 +445,7 @@ public class Server {
 		rawData.put("_widget_1576034485467", m21);
 		//出库产品显示
 		Map<String, Object> m22 = new HashMap<String, Object>();
-		m22.put("value", htsl+getInteger(a35.get(0).get("_widget_1577956559026"))+getInteger(a35.get(0).get("_widget_1577956559093"))-getInteger(a35.get(0).get("_widget_1576034485303"))>0?0:1);
+		m22.put("value",getInteger(map.get("_widget_1579242428750"))+(htsl+getInteger(a35.get(0).get("_widget_1577956559026"))+getInteger(a35.get(0).get("_widget_1577956559093"))-getInteger(a35.get(0).get("_widget_1576034485303"))>0?0:1));
 		rawData.put("_widget_1576034485482", m22);
 		//采购产品显示
 		Map<String, Object> m23 = new HashMap<String, Object>();
@@ -471,6 +459,10 @@ public class Server {
 		Map<String, Object> m25 = new HashMap<String, Object>();
 		m25.put("value",a35.get(0).get("_widget_1578466166449"));
 		rawData.put("_widget_1578466166449", m25);
+		//A3流程结束标记
+		Map<String, Object> m26 = new HashMap<String, Object>();
+		m26.put("value",map.get("_widget_1579242428750"));
+		rawData.put("_widget_1579242428750", m26);
 		api.updateData(a35.get(0).get("_id").toString(), rawData);
 	}
 	
@@ -486,7 +478,7 @@ public class Server {
 	 *@return
 	 *</pre>
 	 */
-	public static List<Map<String, Object>> getListMap(List<Object> lists){
+	public static List<Map<String, Object>> getListMap(List<Object> lists,int flowState){
 		List<Map<String, Object>> arrayLists=new ArrayList<Map<String, Object>>();
 		for (int i = 0; i < lists.size(); i++) {
 			Map<String, Object> map=new HashMap<String, Object>();
@@ -502,6 +494,7 @@ public class Server {
 			map.put("_widget_1577956559011", ((Map)lists.get(i)).get("_widget_1564381839489"));//A3合同数量
 			map.put("_widget_1577956558522", ((Map)lists.get(i)).get("_widget_1558610752973"));//A3分摊金额
 			map.put("_widget_1576034485536", ((Map)lists.get(i)).get("_widget_1558423889365"));//A3单定制品标价
+			map.put("_widget_1579242428750", flowState==0?1:0);//A3流程结束标记
 			arrayLists.add(map);
 		}
 		return arrayLists;
