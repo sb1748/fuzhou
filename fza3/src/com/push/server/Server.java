@@ -47,9 +47,9 @@ public class Server {
 	final static String ENTRYID = "5df05a44b579470006b2c5f6";
 	final static String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
 	
-	public static final String URL = "";
-	public static final String USER = "";
-	public static final String PASSWORD = "";
+	public static final String URL = "jdbc:mysql://rdsvc08y55x4bq2uk5a4.mysql.rds.aliyuncs.com:3306/fzjdy?characterEncoding=utf-8";
+	public static final String USER = "fzjdy";
+	public static final String PASSWORD = "jdy_fz@2020";
 	
 	// 生成签名信息
 	private static String getSignature(String nonce, String payload, String secret, String timestamp) {
@@ -99,42 +99,42 @@ public class Server {
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
 		//===========================部署到服务器上之前，先注释掉上面的代码，执行下面的代码，执行完后再注释掉下面的代码，把上面的代码注释去掉==========================
-		try {
-			String A3_APPID = "5ca877ccf99f2279a9dd6d14";
-			String A3_ENTRYID = "5c25996f987f1e5fe9032e23";
-			String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
-			JDYAPIUtils api = new JDYAPIUtils(A3_APPID, A3_ENTRYID, APIKEY);
-			List<Map<String, Object>> a3 = api.getAllFormData(null, null);
-			Connection conn=null;
-			conn = DriverManager.getConnection(URL, USER, PASSWORD);
-			conn.setAutoCommit(false);
-			//添加数据
-			String sql = "insert into a3(qxx,sgdh,cpbm,cpqm,xsbz,xsmc,zj,htsl,ftje,ddzpbj,bdid) values(?,?,?,?,?,?,?,?,?,?,?)";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			for (int i = 0; i < a3.size(); i++) {
-				ArrayList<Map<String, Object>> lists = (ArrayList<Map<String, Object>>)a3.get(i).get("_widget_1545988304733");
-				for (int j = 0; j < lists.size(); j++) {
-					String qxx=((Map)lists.get(j)).get("_widget_1558495976018")+"-"+((Map)lists.get(j)).get("_widget_1559206739451");
-					pstmt.setString(1, qxx.replace("𡋾", "别"));
-					pstmt.setString(2, lists.get(j).get("_widget_1551859128121").toString());
-					pstmt.setString(3, lists.get(j).get("_widget_1546527150734").toString());
-					pstmt.setString(4, lists.get(j).get("_widget_1546132677648").toString());
-					pstmt.setString(5, lists.get(j).get("_widget_1551671731631").toString());
-					pstmt.setString(6, lists.get(j).get("_widget_1558852228099").toString());
-					String zj=getString(lists.get(j).get("_widget_1546132677648"))+lists.get(j).get("_widget_1558495976018")+"-"+lists.get(j).get("_widget_1559206739451")+getString(lists.get(j).get("_widget_1551859128121"))+getString(lists.get(j).get("_widget_1551671731631"));
-					pstmt.setString(7, zj.replace("𡋾", "别"));
-					pstmt.setInt(8, getInteger(lists.get(j).get("_widget_1564381839489")));
-					pstmt.setDouble(9, getDouble(lists.get(j).get("_widget_1558610752973")));
-					pstmt.setDouble(10, getDouble(lists.get(j).get("_widget_1558423889365")));
-					pstmt.setString(11, a3.get(i).get("_id").toString());
-					pstmt.addBatch();
-				}
-			}
-			pstmt.executeBatch();
-			conn.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			String A3_APPID = "5ca877ccf99f2279a9dd6d14";
+//			String A3_ENTRYID = "5c25996f987f1e5fe9032e23";
+//			String APIKEY = "gyDVrjxlqwalw01Dx0UYjXj4PqLGDyOl";
+//			JDYAPIUtils api = new JDYAPIUtils(A3_APPID, A3_ENTRYID, APIKEY);
+//			List<Map<String, Object>> a3 = api.getAllFormData(null, null);
+//			Connection conn=null;
+//			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+//			conn.setAutoCommit(false);
+//			//添加数据
+//			String sql = "insert into a3(qxx,sgdh,cpbm,cpqm,xsbz,xsmc,zj,htsl,ftje,ddzpbj,bdid) values(?,?,?,?,?,?,?,?,?,?,?)";
+//			PreparedStatement pstmt = conn.prepareStatement(sql);
+//			for (int i = 0; i < a3.size(); i++) {
+//				ArrayList<Map<String, Object>> lists = (ArrayList<Map<String, Object>>)a3.get(i).get("_widget_1545988304733");
+//				for (int j = 0; j < lists.size(); j++) {
+//					String qxx=((Map)lists.get(j)).get("_widget_1558495976018")+"-"+((Map)lists.get(j)).get("_widget_1559206739451");
+//					pstmt.setString(1, qxx.replace("𡋾", "别"));
+//					pstmt.setString(2, lists.get(j).get("_widget_1551859128121").toString());
+//					pstmt.setString(3, lists.get(j).get("_widget_1546527150734").toString());
+//					pstmt.setString(4, lists.get(j).get("_widget_1546132677648").toString());
+//					pstmt.setString(5, lists.get(j).get("_widget_1551671731631").toString());
+//					pstmt.setString(6, lists.get(j).get("_widget_1558852228099").toString());
+//					String zj=getString(lists.get(j).get("_widget_1546132677648"))+lists.get(j).get("_widget_1558495976018")+"-"+lists.get(j).get("_widget_1559206739451")+getString(lists.get(j).get("_widget_1551859128121"))+getString(lists.get(j).get("_widget_1551671731631"));
+//					pstmt.setString(7, zj.replace("𡋾", "别"));
+//					pstmt.setInt(8, getInteger(lists.get(j).get("_widget_1564381839489")));
+//					pstmt.setDouble(9, getDouble(lists.get(j).get("_widget_1558610752973")));
+//					pstmt.setDouble(10, getDouble(lists.get(j).get("_widget_1558423889365")));
+//					pstmt.setString(11, a3.get(i).get("_id").toString());
+//					pstmt.addBatch();
+//				}
+//			}
+//			pstmt.executeBatch();
+//			conn.commit();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 	}
 
@@ -156,8 +156,8 @@ public class Server {
 				if (DATA_CREATE.equals(op)) {
 					addServer(data);
 				}
-				 if (DATA_UPDATE.equals(op)) {
-					 addServer(data);
+				 if (DATA_UPDATE.equals(op) && data.getInteger("flowState")!=0) {
+					addServer(data);
 				 }
 			}
 		};
